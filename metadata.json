@@ -1,0 +1,7 @@
+{
+  "name": "Curry Craft Premium Dining",
+  "description": "A premium ordering website for DDH Curry Craft, featuring a royal Indian menu with rich aesthetics.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
