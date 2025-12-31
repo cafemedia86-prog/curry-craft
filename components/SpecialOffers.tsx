@@ -71,7 +71,7 @@ const SpecialOffers: React.FC = () => {
             </div>
 
             {/* Right Image */}
-            <div className="w-36 h-36 rounded-full border-4 border-[#022c22]/50 shadow-2xl overflow-hidden -mr-8 flex-shrink-0 bg-stone-800">
+            <div className="w-36 h-36 rounded-full border-4 border-[#022c22]/50 shadow-2xl overflow-hidden flex-shrink-0 bg-stone-800">
               <img
                 src={offer.image_url || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&q=80'}
                 alt={offer.title}

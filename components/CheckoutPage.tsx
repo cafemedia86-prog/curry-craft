@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { useAddresses } from '../context/AddressContext';
 import { useLoyalty } from '../context/LoyaltyContext';
 import AddressPickerModal from './AddressPickerModal';
+import { useStoreSettings } from '../hooks/useStoreSettings';
+import { calculateDistance, calculateDeliveryFee } from '../utils/geoUtils';
 
 interface CheckoutPageProps {
     onBack: () => void;
@@ -19,6 +21,28 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack, onOrderPlaced }) =>
     const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
         addresses.find(a => a.isDefault)?.id || (addresses.length > 0 ? addresses[0].id : null)
     );
+    const { settings: storeSettings } = useStoreSettings();
+    const [deliveryFee, setDeliveryFee] = useState(0);
+    const [distanceKm, setDistanceKm] = useState(0);
+
+    const selectedAddress = addresses.find(a => a.id === selectedAddressId);
+
+    React.useEffect(() => {
+        if (selectedAddress && storeSettings) {
+            const dist = calculateDistance(
+                storeSettings.outlet_latitude,
+                storeSettings.outlet_longitude,
+                selectedAddress.latitude,
+                selectedAddress.longitude
+            );
+            setDistanceKm(Number(dist.toFixed(1))); // Round to 1 decimal place for display
+            setDeliveryFee(calculateDeliveryFee(dist));
+        } else {
+            setDeliveryFee(0);
+            setDistanceKm(0);
+        }
+    }, [selectedAddress, storeSettings]);
+
     const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'card'>('wallet');
     const [redeemPoints, setRedeemPoints] = useState(false);
 
@@ -43,7 +67,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack, onOrderPlaced }) =>
     const taxableAmount = Math.max(0, subTotalAfterDiscount - loyaltyDiscount);
 
     const tax = Math.round(taxableAmount * 0.05);
-    const total = taxableAmount + tax;
+    const total = taxableAmount + tax + deliveryFee;
 
     const pointsToEarn = calculatePointsToAward(total);
 
@@ -95,7 +119,9 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack, onOrderPlaced }) =>
                 total: total,
                 deliveryAddress: selectedAddress?.addressLine || 'Self Pickup',
                 discountAmount: discountAmount,
-                appliedOfferCode: couponCode // Changed key to match Order interface
+                appliedOfferCode: couponCode, // Changed key to match Order interface
+                deliveryFee: deliveryFee,
+                deliveryDistance: distanceKm
             };
 
             await onOrderPlaced(orderData);
@@ -125,7 +151,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack, onOrderPlaced }) =>
         }
     };
 
-    const selectedAddress = addresses.find(a => a.id === selectedAddressId);
+
 
     if (orderSuccess) {
         return (
@@ -266,6 +292,10 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack, onOrderPlaced }) =>
                         <div className="flex justify-between text-sm text-green-400/60">
                             <span>Taxes (5%)</span>
                             <span>₹ {tax}</span>
+                        </div>
+                        <div className="flex justify-between text-sm text-green-400/60">
+                            <span>Delivery Fee ({distanceKm} km)</span>
+                            <span>₹ {deliveryFee}</span>
                         </div>
 
                         {/* Loyalty Redemption Toggle */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Calendar, ChevronRight, MapPin } from 'lucide-react';
+import { Package, Calendar, ChevronRight, MapPin, Truck, Phone } from 'lucide-react';
 import { useOrders } from '../context/OrderContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -53,7 +53,35 @@ const OrderHistory: React.FC = () => {
                         </div>
 
                         <div className="flex justify-between items-center pt-3 border-t border-green-800/30">
-                            <div className="text-amber-400 font-bold">₹ {order.total}</div>
+                            <div className="flex items-center gap-3">
+                                {order.status === 'Dispatched' && order.trackingUrl && (
+                                    <a
+                                        href={order.trackingUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="bg-emerald-600/20 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-emerald-500/30 flex items-center gap-2 hover:bg-emerald-600 hover:text-white transition-all animate-pulse"
+                                    >
+                                        <Truck size={14} /> Active Tracking
+                                    </a>
+                                )}
+                                {order.status === 'Dispatched' && order.courierDetails && (
+                                    <div className="flex items-center gap-2 bg-green-500/5 px-2 py-1 rounded-lg border border-green-500/10">
+                                        <div className="text-[10px] text-green-400 font-medium">
+                                            {order.courierDetails}
+                                        </div>
+                                        <a
+                                            href={`tel:${order.courierDetails.replace(/[^\d+]/g, '')}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="p-1 bg-green-500/20 text-green-400 rounded-full hover:bg-green-500 hover:text-white transition-colors"
+                                            title="Call Driver"
+                                        >
+                                            <Phone size={12} />
+                                        </a>
+                                    </div>
+                                )}
+                                <div className="text-amber-400 font-bold">₹ {order.total}</div>
+                            </div>
                             <div className="text-green-400 group-hover:translate-x-1 transition-transform">
                                 <ChevronRight size={18} />
                             </div>

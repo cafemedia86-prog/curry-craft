@@ -17,7 +17,7 @@ interface AuthContextType {
     user: UserProfile | null;
     sbUser: User | null;
     login: (email: string, password: string) => Promise<{ error: any }>;
-    signUp: (email: string, password: string, name: string, role: UserRole) => Promise<{ error: any }>;
+    signUp: (email: string, password: string, name: string, phone: string, role: UserRole) => Promise<{ error: any }>;
     logout: () => Promise<void>;
     updateWallet: (amount: number) => Promise<void>;
     addLoyaltyPoints: (points: number) => Promise<void>;
@@ -89,13 +89,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error };
     };
 
-    const signUp = async (email: string, password: string, name: string, role: UserRole) => {
+    const signUp = async (email: string, password: string, name: string, phone: string, role: UserRole) => {
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
                 data: {
                     full_name: name,
+                    phone: phone,
                     role: role
                 }
             }

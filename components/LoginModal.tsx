@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth, UserRole } from '../context/AuthContext';
-import { ShieldCheck, User, Lock, Mail, Key, UserPlus, X } from 'lucide-react';
+import { ShieldCheck, User, Lock, Mail, Key, UserPlus, X, Phone } from 'lucide-react';
 
 interface LoginModalProps {
     onClose?: () => void;
@@ -13,6 +13,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -26,7 +27,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
                 const { error } = await login(email, password);
                 if (error) setError(error.message);
             } else {
-                const { error } = await signUp(email, password, name, 'USER');
+                const { error } = await signUp(email, password, name, phone, 'USER');
                 if (error) setError(error.message);
                 else {
                     setIsLogin(true); // Switch to login after successful signup
@@ -89,6 +90,23 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
                         </div>
                     )}
 
+                    {!isLogin && (
+                        <div>
+                            <label className="text-[10px] font-bold text-green-400/40 uppercase tracking-widest mb-1.5 block">Phone Number</label>
+                            <div className="relative">
+                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400/40" size={18} />
+                                <input
+                                    type="tel"
+                                    required
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    className="w-full bg-[#034435] border border-green-800/30 rounded-xl py-3 pl-11 pr-4 text-white focus:outline-none focus:border-amber-500/50 transition-colors"
+                                    placeholder="+91 98765 43210"
+                                />
+                            </div>
+                        </div>
+                    )}
+
                     <div>
                         <label className="text-[10px] font-bold text-green-400/40 uppercase tracking-widest mb-1.5 block">Email Address</label>
                         <div className="relative">
@@ -129,7 +147,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
                         {isLoading ? (
                             <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                         ) : (
-                            <>{isLogin ? 'Enter Kitchen' : 'Create Account'}</>
+                            <>{isLogin ? 'Login' : 'Create Account'}</>
                         )}
                     </button>
                 </form>
@@ -142,8 +160,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose }) => {
                         {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
                     </button>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

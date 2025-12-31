@@ -9,6 +9,7 @@ import { CartProvider } from './context/CartContext';
 import { MenuItem } from './types';
 import WalletPage from './components/WalletPage';
 import ProfilePage from './components/ProfilePage';
+import { Home, ShoppingBag, User, Wallet, ClipboardList, ChefHat, Award, TrendingUp, Users, Ticket, LogOut, Settings } from 'lucide-react';
 import CheckoutPage from './components/CheckoutPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { MenuProvider } from './context/MenuContext';
@@ -40,6 +41,14 @@ function AppContent() {
     React.useEffect(() => {
         const handleSwitchTab = (e: any) => {
             const tab = e.detail;
+            // Protected tabs that require login
+            const protectedTabs = ['checkout', 'wallet', 'profile', 'admin'];
+            if (protectedTabs.includes(tab) && !user) {
+                setAfterAuthRedirect({ tab });
+                setIsAuthModalOpen(true);
+                return;
+            }
+
             if ((user?.role === 'ADMIN' || user?.role === 'MANAGER') && !['checkout', 'profile', 'home', 'explore', 'wallet'].includes(tab)) {
                 setAdminSubTab(tab);
                 setCurrentTab('admin');

@@ -16,6 +16,11 @@ export interface Order {
     rejectionReason?: string;
     appliedOfferCode?: string;
     discountAmount?: number;
+    deliveryProvider?: string;
+    trackingUrl?: string;
+    courierDetails?: string;
+    deliveryFee?: number;
+    deliveryDistance?: number;
 }
 
 interface OrderContextType {
@@ -25,6 +30,7 @@ interface OrderContextType {
     updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
     refundOrder: (orderId: string) => Promise<void>;
     rejectOrder: (orderId: string, reason: string) => Promise<void>;
+    dispatchOrder: (orderId: string, details: { provider: string, url: string, details: string }) => Promise<void>;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -61,7 +67,12 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     total: Number(order.total),
                     status: order.status as OrderStatus,
                     deliveryAddress: order.delivery_address || 'Takeaway',
-                    rejectionReason: order.rejection_reason
+                    rejectionReason: order.rejection_reason,
+                    deliveryProvider: order.delivery_provider,
+                    trackingUrl: order.tracking_url,
+                    courierDetails: order.courier_details,
+                    deliveryFee: Number(order.delivery_fee || 0),
+                    deliveryDistance: Number(order.delivery_distance || 0)
                 }));
                 setOrders(mappedOrders);
             }
@@ -112,7 +123,9 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     status: 'Pending',
                     delivery_address: orderData.deliveryAddress,
                     applied_offer_code: orderData.appliedOfferCode,
-                    discount_amount: orderData.discountAmount || 0
+                    discount_amount: orderData.discountAmount || 0,
+                    delivery_fee: orderData.deliveryFee || 0,
+                    delivery_distance: orderData.deliveryDistance || 0
                 }]);
 
             if (error) throw error;
@@ -165,8 +178,28 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
     };
 
+    const dispatchOrder = async (orderId: string, details: { provider: string, url: string, details: string }) => {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .update({
+                    status: 'Dispatched',
+                    delivery_provider: details.provider,
+                    tracking_url: details.url,
+                    courier_details: details.details
+                })
+                .eq('id', orderId);
+
+            if (error) throw error;
+            await fetchOrders();
+        } catch (error) {
+            console.error('Error dispatching order:', error);
+            alert('Failed to dispatch order');
+        }
+    };
+
     return (
-        <OrderContext.Provider value={{ orders, isLoading, placeOrder, updateOrderStatus, refundOrder, rejectOrder }}>
+        <OrderContext.Provider value={{ orders, isLoading, placeOrder, updateOrderStatus, refundOrder, rejectOrder, dispatchOrder }}>
             {children}
         </OrderContext.Provider>
     );

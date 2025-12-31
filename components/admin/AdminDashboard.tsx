@@ -5,6 +5,7 @@ import DishManager from './DishManager';
 import LoyaltyManager from './LoyaltyManager';
 import StaffManager from './StaffManager';
 import OfferManager from './OfferManager';
+import StoreSettings from './StoreSettings';
 import { useAuth } from '../../context/AuthContext';
 
 interface AdminDashboardProps {
@@ -29,6 +30,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ activeSubTab }) => {
                 return <OfferManager />;
             case 'staff':
                 return user?.role === 'ADMIN' ? <StaffManager /> : <AdminHome />;
+            case 'settings':
+                return user?.role === 'ADMIN' ? <StoreSettings /> : <AdminHome />;
             default:
                 return <AdminHome />;
         }
