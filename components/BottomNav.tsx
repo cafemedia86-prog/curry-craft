@@ -14,13 +14,13 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, isAdmin }
 
   const getTabClass = (tabName: string) => {
     const isActive = activeTab === tabName;
-    return `flex flex-col items-center gap-1.5 transition-colors ${isActive ? 'text-amber-500' : 'text-green-400/40 hover:text-green-200'
+    return `flex flex-col items-center gap-1.5 transition-colors ${isActive ? 'text-[#D4A017]' : 'text-[#9DB8AA] hover:text-[#DCEFE4]'
       }`;
   };
 
   if (isAdmin || user?.role === 'MANAGER') {
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-[#022c22] border-t border-green-900/50 py-4 px-6 flex justify-between items-center z-50 rounded-t-3xl shadow-[0_-5px_25px_rgba(0,0,0,0.5)]">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#0F2E1A] border-t border-[#D4A017]/30 py-4 px-6 flex justify-between items-center z-50 rounded-t-3xl shadow-[0_-5px_25px_rgba(0,0,0,0.5)]">
         <button onClick={() => onTabChange('home')} className={getTabClass('home')}>
           <ShieldCheck size={24} className={activeTab === 'home' ? "fill-amber-500/20" : ""} />
           <span className="text-[10px] font-bold tracking-wide">Dashboard</span>
@@ -74,7 +74,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, isAdmin }
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#022c22] border-t border-green-900/50 py-4 px-6 flex justify-between items-center z-50 rounded-t-3xl shadow-[0_-5px_25px_rgba(0,0,0,0.5)]">
+    <div className="fixed bottom-0 left-0 right-0 bg-[#0F2E1A] border-t border-[#D4A017]/30 py-4 px-6 flex justify-between items-center z-50 rounded-t-3xl shadow-[0_-5px_25px_rgba(0,0,0,0.5)]">
       <button onClick={() => onTabChange('home')} className={getTabClass('home')}>
         <Home size={24} className={activeTab === 'home' ? "fill-amber-500/20" : ""} />
         <span className="text-[10px] font-bold tracking-wide">Home</span>

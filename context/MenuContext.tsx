@@ -35,7 +35,9 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     price: Number(item.price),
                     category: item.category,
                     isVeg: item.is_veg,
-                    image: item.image
+                    image: item.image,
+                    rating: item.rating || 0,
+                    reviewCount: item.review_count || 0
                 }));
                 setMenu(mappedMenu);
             }

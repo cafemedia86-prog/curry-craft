@@ -6,7 +6,7 @@ import BottomNav from './components/BottomNav';
 import ProductModal from './components/ProductModal';
 import CartSidebar from './components/CartSidebar';
 import { CartProvider } from './context/CartContext';
-import { MenuItem } from './types';
+import { MenuItem, DishFilter } from './types';
 import WalletPage from './components/WalletPage';
 import ProfilePage from './components/ProfilePage';
 import { Home, ShoppingBag, User, Wallet, ClipboardList, ChefHat, Award, TrendingUp, Users, Ticket, LogOut, Settings } from 'lucide-react';
@@ -18,6 +18,7 @@ import { AddressProvider } from './context/AddressContext';
 import { LoyaltyProvider } from './context/LoyaltyContext';
 import LoginModal from './components/LoginModal';
 import AdminDashboard from './components/admin/AdminDashboard';
+import FilterModal from './components/FilterModal';
 
 // --- Main App Component ---
 
@@ -29,7 +30,12 @@ function AppContent() {
     const [adminSubTab, setAdminSubTab] = useState<'home' | 'orders' | 'dishes' | 'loyalty' | 'staff' | 'analytics' | 'offers'>('home');
     const [searchQuery, setSearchQuery] = useState('');
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
     const [afterAuthRedirect, setAfterAuthRedirect] = useState<{ tab: string, subTab?: string } | null>(null);
+    const [dishFilters, setDishFilters] = useState<DishFilter>({
+        type: 'all',
+        sortBy: 'popularity'
+    });
 
     // Logout Redirection
     React.useEffect(() => {
@@ -112,16 +118,18 @@ function AppContent() {
                             <Menu
                                 onProductClick={setSelectedProduct}
                                 searchQuery={searchQuery}
+                                filters={dishFilters}
                             />
                         </>
                     );
                 case 'explore':
                     return (
                         <div className="pt-4">
-                            <h2 className="text-2xl font-serif text-white px-5 mb-4">Explore Menu</h2>
+                            <h2 className="text-2xl font-serif text-[#0F2E1A] px-5 mb-4">Explore Menu</h2>
                             <Menu
                                 onProductClick={setSelectedProduct}
                                 searchQuery={searchQuery}
+                                filters={dishFilters}
                             />
                         </div>
                     );
@@ -132,6 +140,7 @@ function AppContent() {
                             <Menu
                                 onProductClick={setSelectedProduct}
                                 searchQuery={searchQuery}
+                                filters={dishFilters}
                             />
                         </>
                     );
@@ -151,6 +160,7 @@ function AppContent() {
                         <Menu
                             onProductClick={setSelectedProduct}
                             searchQuery={searchQuery}
+                            filters={dishFilters}
                         />
                     </>
                 );
@@ -170,10 +180,11 @@ function AppContent() {
             case 'explore':
                 return (
                     <div className="pt-4">
-                        <h2 className="text-2xl font-serif text-white px-5 mb-4">Explore Menu</h2>
+                        <h2 className="text-2xl font-serif text-[#0F2E1A] px-5 mb-4">Explore Menu</h2>
                         <Menu
                             onProductClick={setSelectedProduct}
                             searchQuery={searchQuery}
+                            filters={dishFilters}
                         />
                     </div>
                 );
@@ -182,13 +193,17 @@ function AppContent() {
             case 'profile':
                 return <ProfilePage />;
             default:
-                return <Menu onProductClick={setSelectedProduct} searchQuery={searchQuery} />;
+                return <Menu onProductClick={setSelectedProduct} searchQuery={searchQuery} filters={dishFilters} />;
         }
     };
 
     return (
-        <div className="min-h-screen bg-[#477368] text-green-50 font-sans selection:bg-amber-500 selection:text-white pb-24">
-            <Navbar onSearch={setSearchQuery} searchTerm={searchQuery} />
+        <div className="min-h-screen bg-[#F5F1E8] text-[#0F2E1A] font-sans selection:bg-[#D4A017] selection:text-white pb-24">
+            <Navbar
+                onSearch={setSearchQuery}
+                searchTerm={searchQuery}
+                onFilterClick={() => setIsFilterModalOpen(true)}
+            />
             <main className="pt-2">
                 {renderContent()}
             </main>
@@ -218,6 +233,12 @@ function AppContent() {
                     onClose={() => setSelectedProduct(null)}
                 />
             )}
+            <FilterModal
+                isOpen={isFilterModalOpen}
+                onClose={() => setIsFilterModalOpen(false)}
+                filters={dishFilters}
+                onApply={setDishFilters}
+            />
         </div>
     );
 }

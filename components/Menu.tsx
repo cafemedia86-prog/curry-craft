@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CATEGORIES } from '../constants';
-import { MenuItem } from '../types';
+import { MenuItem, DishFilter } from '../types';
 import { Heart, Star, Plus, SearchX, ShoppingBag, Leaf, Circle } from 'lucide-react';
 import CategoryRail from './CategoryRail';
 import { useCart } from '../context/CartContext';
@@ -10,9 +10,10 @@ interface MenuProps {
     onProductClick: (product: MenuItem) => void;
     searchQuery: string;
     onSeeAll?: () => void;
+    filters: DishFilter;
 }
 
-const Menu: React.FC<MenuProps> = ({ onProductClick, searchQuery }) => {
+const Menu: React.FC<MenuProps> = ({ onProductClick, searchQuery, filters }) => {
     const { addToCart } = useCart();
     const { menu, isLoading } = useMenu();
     const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].id);
@@ -21,13 +22,31 @@ const Menu: React.FC<MenuProps> = ({ onProductClick, searchQuery }) => {
     const isSearching = searchQuery.length > 0;
 
     // Filter items based on search OR active category
-    const displayedItems = isSearching
+    let displayedItems = isSearching
         ? menu.filter(item =>
             item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.category.includes(searchQuery.toLowerCase()) ||
             item.description.toLowerCase().includes(searchQuery.toLowerCase())
         )
         : menu.filter(item => item.category === activeCategory);
+
+    // Apply dietary filter
+    if (filters.type === 'veg') {
+        displayedItems = displayedItems.filter(item => item.isVeg);
+    } else if (filters.type === 'non-veg') {
+        displayedItems = displayedItems.filter(item => !item.isVeg);
+    }
+
+    // Apply sorting
+    displayedItems = [...displayedItems].sort((a, b) => {
+        switch (filters.sortBy) {
+            case 'priceLow': return a.price - b.price;
+            case 'priceHigh': return b.price - a.price;
+            case 'rating': return (b.rating || 0) - (a.rating || 0);
+            case 'popularity':
+            default: return 0; // Keep original order
+        }
+    });
 
     // Get featured items specific to the CURRENT view (displayed items)
     const featuredItems = displayedItems.slice(0, 5);
@@ -48,7 +67,7 @@ const Menu: React.FC<MenuProps> = ({ onProductClick, searchQuery }) => {
             {!isSearching && featuredItems.length > 0 && (
                 <section className="mb-8 pl-5 animate-in slide-in-from-right duration-500">
                     <div className="flex items-center pr-5 mb-5">
-                        <h3 className="text-xl font-sans font-bold text-white tracking-wide">
+                        <h3 className="text-xl font-sans font-bold text-[#0F2E1A] tracking-wide">
                             {activeCategory === 'main-course' ? 'Featured Products' : `Top ${currentCategoryLabel}`}
                         </h3>
                     </div>
@@ -58,16 +77,16 @@ const Menu: React.FC<MenuProps> = ({ onProductClick, searchQuery }) => {
                             <div
                                 key={`feat-${item.id}`}
                                 onClick={() => onProductClick(item)}
-                                className="snap-start min-w-[220px] w-[220px] bg-[#034435] rounded-[2rem] p-3 shadow-xl shadow-black/20 flex-shrink-0 group cursor-pointer border border-transparent hover:border-amber-500/30 transition-all"
+                                className="snap-start min-w-[220px] w-[220px] bg-white rounded-[2rem] p-3 shadow-md shadow-black/5 flex-shrink-0 group cursor-pointer border border-[#E6E0D5] hover:border-[#D4A017]/30 transition-all"
                             >
                                 <div className="relative mb-3">
                                     <div className="h-32 w-full rounded-[1.5rem] overflow-hidden">
                                         <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                     </div>
 
-                                    <div className="absolute top-2 left-2 bg-black/40 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 border border-white/10">
-                                        <Star size={10} className="text-amber-400 fill-amber-400" />
-                                        <span className="text-white text-[10px] font-bold">4.8</span>
+                                    <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 shadow-sm border border-[#E6E0D5]/50">
+                                        <Star size={10} className="text-[#D4A017] fill-[#D4A017]" />
+                                        <span className="text-[#0F2E1A] text-[10px] font-bold">{item.rating || '4.5'}</span>
                                     </div>
 
                                     <button className="absolute top-2 right-2 w-7 h-7 bg-white rounded-full flex items-center justify-center text-red-500 shadow-sm">
@@ -80,19 +99,19 @@ const Menu: React.FC<MenuProps> = ({ onProductClick, searchQuery }) => {
                                         <div className={`w-3 h-3 border ${item.isVeg ? 'border-green-500' : 'border-red-500'} flex items-center justify-center p-[1px]`}>
                                             <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-500' : 'bg-red-500'}`}></div>
                                         </div>
-                                        <h4 className="text-white font-serif text-lg font-medium truncate leading-tight flex-1">{item.name}</h4>
+                                        <h4 className="text-[#0F2E1A] font-serif text-lg font-bold truncate leading-tight flex-1">{item.name}</h4>
                                     </div>
-                                    <p className="text-green-100/70 text-xs mt-1 capitalize">{item.category.replace('-', ' ')}</p>
+                                    <p className="text-[#0F2E1A]/60 text-xs mt-1 capitalize">{item.category.replace('-', ' ')}</p>
                                 </div>
 
                                 <div className="flex justify-between items-center px-1 mt-3">
-                                    <span className="text-amber-400 font-bold text-lg">₹{item.price}</span>
+                                    <span className="text-[#D4A017] font-bold text-lg">₹{item.price}</span>
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             addToCart(item);
                                         }}
-                                        className="w-9 h-9 bg-[#022c22] rounded-full flex items-center justify-center text-white border border-green-800 hover:bg-amber-500 hover:text-[#022c22] hover:border-amber-500 transition-colors"
+                                        className="w-9 h-9 bg-[#0F2E1A] rounded-full flex items-center justify-center text-white hover:bg-[#D4A017] transition-colors shadow-lg shadow-[#0F2E1A]/10"
                                     >
                                         <Plus size={18} />
                                     </button>
@@ -106,13 +125,13 @@ const Menu: React.FC<MenuProps> = ({ onProductClick, searchQuery }) => {
             {/* Main List / Search Results */}
             <section className="px-5">
                 {isSearching && (
-                    <h3 className="text-xl font-sans font-bold text-green-950 tracking-wide mb-4">
+                    <h3 className="text-xl font-sans font-bold text-[#0F2E1A] tracking-wide mb-4">
                         {displayedItems.length > 0 ? `Results for "${searchQuery}"` : `No results for "${searchQuery}"`}
                     </h3>
                 )}
 
                 {!isSearching && (
-                    <h3 className="text-xl font-sans font-bold text-green-950 tracking-wide mb-4 animate-in fade-in duration-300">
+                    <h3 className="text-xl font-sans font-bold text-[#0F2E1A] tracking-wide mb-4 animate-in fade-in duration-300">
                         {currentCategoryLabel}
                     </h3>
                 )}
@@ -143,13 +162,13 @@ const Menu: React.FC<MenuProps> = ({ onProductClick, searchQuery }) => {
                             <div
                                 key={item.id}
                                 onClick={() => onProductClick(item)}
-                                className="bg-[#034435] rounded-3xl p-3 mb-4 flex gap-4 shadow-lg border border-green-800/20 hover:border-amber-500/30 transition-all cursor-pointer group"
+                                className="bg-white rounded-3xl p-3 mb-4 flex gap-4 shadow-sm border border-[#E6E0D5] hover:border-[#D4A017]/30 transition-all cursor-pointer group"
                             >
                                 <div className="h-28 w-28 rounded-2xl overflow-hidden flex-shrink-0 relative">
                                     <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                    <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-sm px-1.5 py-0.5 rounded-md flex items-center gap-0.5">
-                                        <Star size={8} className="text-amber-400 fill-amber-400" />
-                                        <span className="text-white text-[9px] font-bold">4.8</span>
+                                    <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-md px-1.5 py-0.5 rounded-md flex items-center gap-0.5 border border-[#E6E0D5]/50 shadow-sm">
+                                        <Star size={8} className="text-[#D4A017] fill-[#D4A017]" />
+                                        <span className="text-[#0F2E1A] text-[9px] font-bold">{item.rating || '4.5'}</span>
                                     </div>
                                 </div>
 
@@ -159,19 +178,19 @@ const Menu: React.FC<MenuProps> = ({ onProductClick, searchQuery }) => {
                                             <div className={`w-3 h-3 border ${item.isVeg ? 'border-green-500' : 'border-red-500'} flex items-center justify-center p-[1px]`}>
                                                 <div className={`w-full h-full rounded-full ${item.isVeg ? 'bg-green-500' : 'bg-red-500'}`}></div>
                                             </div>
-                                            <h4 className="text-white font-serif text-lg font-medium line-clamp-1">{item.name}</h4>
+                                            <h4 className="text-[#0F2E1A] font-serif text-lg font-bold line-clamp-1">{item.name}</h4>
                                         </div>
-                                        <p className="text-green-400/60 text-xs capitalize mb-1">{item.category.replace('-', ' ')}</p>
-                                        <p className="text-green-200/50 text-[10px] line-clamp-2 leading-relaxed">{item.description}</p>
+                                        <p className="text-[#0F2E1A]/60 text-xs capitalize mb-1">{item.category.replace('-', ' ')}</p>
+                                        <p className="text-[#0F2E1A]/50 text-[10px] line-clamp-2 leading-relaxed font-medium">{item.description}</p>
                                     </div>
                                     <div className="flex justify-between items-center mt-2">
-                                        <span className="text-amber-400 font-bold text-lg">₹{item.price}</span>
+                                        <span className="text-[#D4A017] font-bold text-lg">₹{item.price}</span>
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 addToCart(item);
                                             }}
-                                            className="w-8 h-8 bg-[#022c22] rounded-full flex items-center justify-center text-white border border-green-800 hover:bg-amber-500 hover:text-[#022c22]"
+                                            className="w-8 h-8 bg-[#0F2E1A] rounded-full flex items-center justify-center text-white hover:bg-[#D4A017] transition-colors shadow-lg shadow-[#0F2E1A]/10"
                                         >
                                             <Plus size={16} />
                                         </button>

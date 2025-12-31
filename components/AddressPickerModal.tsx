@@ -96,6 +96,16 @@ const AddressPickerModal: React.FC<AddressPickerModalProps> = ({ onClose, onSave
         );
     }
 
+    function FixMap() {
+        const map = useMap();
+        useEffect(() => {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 500);
+        }, [map]);
+        return null;
+    }
+
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!searchQuery) return;
@@ -118,14 +128,15 @@ const AddressPickerModal: React.FC<AddressPickerModalProps> = ({ onClose, onSave
     return (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-2xl bg-[#022c22] border border-green-800/50 rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
-                <div className="h-80 md:h-96 w-full relative">
-                    <MapContainer center={position} zoom={15} style={{ height: '100%', width: '100%' }}>
+            <div className="relative w-full max-w-2xl bg-[#0F2E1A] border border-[#D4A017]/20 rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+                <div className="h-80 md:h-96 w-full relative z-0">
+                    <MapContainer center={position} zoom={15} style={{ height: '100%', width: '100%' }} className="z-0">
                         <TileLayer
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         />
                         <LocationMarker />
+                        <FixMap />
                     </MapContainer>
 
                     <button
@@ -137,7 +148,7 @@ const AddressPickerModal: React.FC<AddressPickerModalProps> = ({ onClose, onSave
 
                     <button
                         onClick={handleLocateMe}
-                        className="absolute bottom-6 right-4 z-[1000] bg-amber-500 text-white p-3 rounded-full shadow-lg hover:bg-amber-400 transition-all active:scale-95"
+                        className="absolute bottom-6 right-4 z-[1000] bg-[#D4A017] text-[#0F2E1A] p-3 rounded-full shadow-lg hover:bg-[#F4C430] transition-all active:scale-95"
                     >
                         {isLocating ? <Loader2 size={24} className="animate-spin" /> : <Navigation size={24} />}
                     </button>
@@ -152,23 +163,23 @@ const AddressPickerModal: React.FC<AddressPickerModalProps> = ({ onClose, onSave
                                 placeholder="Search location..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-white text-black pl-10 pr-10 py-3 rounded-full shadow-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                                className="w-full bg-white text-black pl-10 pr-10 py-3 rounded-full shadow-xl focus:outline-none focus:ring-2 focus:ring-[#D4A017] text-sm"
                             />
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                            {isSearching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-500 animate-spin" size={18} />}
+                            {isSearching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#D4A017] animate-spin" size={18} />}
                         </div>
                     </form>
                 </div>
 
-                <div className="p-6 bg-[#034435]">
+                <div className="p-6 bg-[#0F2E1A]">
                     <div className="mb-6">
-                        <label className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1 block">Address Label</label>
+                        <label className="text-xs font-bold text-[#D4A017] uppercase tracking-widest mb-1 block">Address Label</label>
                         <div className="flex gap-2">
                             {['Home', 'Work', 'Other'].map((t) => (
                                 <button
                                     key={t}
                                     onClick={() => setLabel(t)}
-                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${label === t ? 'bg-amber-500 text-[#022c22]' : 'bg-green-900/40 text-green-400/60 border border-green-800/30'
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${label === t ? 'bg-[#D4A017] text-[#0F2E1A]' : 'bg-white/5 text-[#FAF7F0]/60 border border-[#D4A017]/20'
                                         }`}
                                 >
                                     {t}
@@ -178,11 +189,11 @@ const AddressPickerModal: React.FC<AddressPickerModalProps> = ({ onClose, onSave
                     </div>
 
                     <div className="mb-8">
-                        <label className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1 block">Detailed Address</label>
+                        <label className="text-xs font-bold text-[#D4A017] uppercase tracking-widest mb-1 block">Detailed Address</label>
                         <textarea
                             value={addressLine}
                             onChange={(e) => setAddressLine(e.target.value)}
-                            className="w-full bg-green-900/20 border border-green-800/30 rounded-2xl p-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 min-h-[80px]"
+                            className="w-full bg-white/5 border border-[#D4A017]/10 rounded-2xl p-4 text-[#FAF7F0] text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A017]/50 min-h-[80px]"
                             placeholder="Apartment, Street, Landmark..."
                         />
                     </div>
@@ -190,7 +201,7 @@ const AddressPickerModal: React.FC<AddressPickerModalProps> = ({ onClose, onSave
                     <button
                         onClick={() => onSave({ label, addressLine, lat: position[0], lng: position[1] })}
                         disabled={!addressLine}
-                        className="w-full bg-amber-500 text-[#022c22] font-bold py-4 rounded-2xl hover:bg-amber-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-amber-950/20"
+                        className="w-full bg-[#D4A017] text-[#0F2E1A] font-bold py-4 rounded-2xl hover:bg-[#F4C430] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-[#D4A017]/20"
                     >
                         <Check size={20} /> Save Address
                     </button>

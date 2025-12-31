@@ -7,9 +7,10 @@ import { useAuth } from '../context/AuthContext';
 interface NavbarProps {
   onSearch: (query: string) => void;
   searchTerm: string;
+  onFilterClick: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onSearch, searchTerm }) => {
+const Navbar: React.FC<NavbarProps> = ({ onSearch, searchTerm, onFilterClick }) => {
   const { cartCount, setIsCartOpen } = useCart();
   const { user } = useAuth();
   const isAdminOrManager = user?.role === 'ADMIN' || user?.role === 'MANAGER';
@@ -48,7 +49,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch, searchTerm }) => {
   }, []);
 
   return (
-    <div className="sticky top-0 z-40 bg-[#022c22] pt-6 pb-4 px-5 shadow-xl rounded-b-3xl">
+    <div className="sticky top-0 z-40 bg-[#0F2E1A] pt-6 pb-4 px-5 shadow-xl rounded-b-3xl border-b border-[#D4A017]/20">
 
 
       {/* Top Row: Location & Actions */}
@@ -100,16 +101,19 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch, searchTerm }) => {
       {!isAdminOrManager && (
         <div className="flex gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400/70" size={20} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9DB8AA]" size={20} />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => onSearch(e.target.value)}
               placeholder="Search"
-              className="w-full bg-[#034435] text-white placeholder-green-400/50 pl-12 pr-4 py-3.5 rounded-xl border-none focus:outline-none focus:ring-1 focus:ring-amber-500/50 shadow-inner"
+              className="w-full bg-[#12422A] text-[#DCEFE4] placeholder-[#9DB8AA]/60 pl-12 pr-4 py-3.5 rounded-xl border-none focus:outline-none focus:ring-1 focus:ring-[#D4A017]/50 shadow-inner"
             />
           </div>
-          <button className="bg-amber-500 text-[#022c22] p-3.5 rounded-xl hover:bg-amber-400 transition-colors shadow-lg shadow-amber-900/20">
+          <button
+            onClick={onFilterClick}
+            className="bg-[#D4A017] text-[#0F2E1A] p-3.5 rounded-xl hover:bg-[#E6C76A] transition-colors shadow-lg shadow-black/20"
+          >
             <SlidersHorizontal size={22} />
           </button>
         </div>
