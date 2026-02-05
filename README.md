@@ -100,10 +100,12 @@ curry-craft/
 
 ## ⚖️ License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+&copy; 2026 **DDH Curry Craft**. All Rights Reserved.
+
+This software and its documentation are proprietary to DDH Curry Craft. Unauthorized copying of this project, via any medium, is strictly prohibited.
 
 ---
 
 <p align="center">
-  Made with ❤️ by <b>DDH Curry Craft Team</b>
+  Crafted with Excellence for <b>DDH Curry Craft Patrons</b>
 </p>
